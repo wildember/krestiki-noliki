@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>krestiki-noliki</title>
+
+    <style>
+        .row {
+            display: flex;
+            flex-direction: row;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .x::before {
+            content: "❌";
+        }
+        .o::before {
+            content: "⭕️";
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">KRESTIKI-NOLIKI 1.0</div>
+        <div class="result"></div>
+        <div class="field">
+            <div class="row">
+                <div class="cell" onclick="move(0, 0)"></div>
+                <div class="cell" onclick="move(0, 1)"></div>
+                <div class="cell" onclick="move(0, 2)"></div>
+            </div>
+            <div class="row">
+                <div class="cell" onclick="move(1, 0)"></div>
+                <div class="cell" onclick="move(1, 1)"></div>
+                <div class="cell" onclick="move(1, 2)"></div>
+            </div>
+            <div class="row">
+                <div class="cell" onclick="move(2, 0)"></div>
+                <div class="cell" onclick="move(2, 1)"></div>
+                <div class="cell" onclick="move(2, 2)"></div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <div class="mode">
+                <label>mode</label>
+                <input type="radio" name="mode" value="pvp" checked onclick="setMode('pvp')"><label for="pvp">PvP</label>
+                <input type="radio" name="mode" value="pve" onclick="setMode('pve')"><label for="pve">PvE</label>
+            </div>
+            <button onclick="reset()">reset</button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    let field = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+    ];
+
+    let player = 1;
+
+    let mode = 'pvp';
+
+    let hasWinner = false;
+
+    render();
+
+    function setMode(selectedMode) {
+        mode = selectedMode;
+        reset();
+    }
+
+    function move(x, y) {
+        if (field[x][y] !== 0) {
+            return;
+        }
+
+        field[x][y] = player;
+        if (player === 1) {
+            player = 2;
+
+            if (mode === 'pve') {
+                autoMove();
+            }
+        } else {
+            player = 1;
+        }
+
+        render();
+    }
+
+    function autoMove() {
+        // @TODO: prevent player1 from getting 3 in a row
+        // @TODO: search for the best move
+        let selectedX = Math.floor(Math.random() * 3);
+        let selectedY = Math.floor(Math.random() * 3);
+
+        if (field[selectedX][selectedY] === 0) {
+            move(selectedX, selectedY);
+        } else {
+            autoMove();
+        }
+    }
+
+    function reset() {
+        field = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ];
+        hasWinner = false;
+
+        document.querySelector('.result').classList.remove('x');
+        document.querySelector('.result').classList.remove('o');
+        document.querySelector('.result').innerText = '';
+
+        render();
+    }
+
+    function render() {
+        if (hasWinner) {
+            return;
+        }
+
+        let filledCells = 0;
+
+        field.forEach((row, x) => {
+            row.forEach((cell, y) => {
+                const cellElement = document.querySelector(`.field .row:nth-child(${x + 1}) .cell:nth-child(${y + 1})`);
+                cellElement.classList.contains('x') && cellElement.classList.remove('x');
+                cellElement.classList.contains('o') && cellElement.classList.remove('o');
+                if (cell !== 0) {
+                    cellElement.classList.add(cell === 1 ? 'x' : 'o');
+                    filledCells++;
+                }
+            });
+        });
+
+        checkResult();
+
+        if (!hasWinner && filledCells === 9) {
+            setDraw();
+        }
+    }
+
+    function checkResult() {
+        const hasFirstRow = field[0][0] === field[0][1] && field[0][1] === field[0][2] && field[0][0] !== 0;
+        const hasSecondRow = field[1][0] === field[1][1] && field[1][1] === field[1][2] && field[1][0] !== 0;
+        const hasThirdRow = field[2][0] === field[2][1] && field[2][1] === field[2][2] && field[2][0] !== 0;
+
+        if (hasFirstRow || hasSecondRow || hasThirdRow) {
+            const winningRow = hasFirstRow ? 0 : hasSecondRow ? 1 : 2;
+            setWin(field[winningRow][0]);
+
+            return;
+        }
+
+        const hasFirstColumn = field[0][0] === field[1][0] && field[1][0] === field[2][0] && field[0][0] !== 0;
+        const hasSecondColumn = field[0][1] === field[1][1] && field[1][1] === field[2][1] && field[0][1] !== 0;
+        const hasThirdColumn = field[0][2] === field[1][2] && field[1][2] === field[2][2] && field[0][2] !== 0;
+
+        if (hasFirstColumn || hasSecondColumn || hasThirdColumn) {
+            const winningColumn = hasFirstColumn ? 0 : hasSecondColumn ? 1 : 2;
+            setWin(field[0][winningColumn]);
+
+            return;
+        }
+
+        const hasFirstDiagonal = field[0][0] === field[1][1] && field[1][1] === field[2][2] && field[0][0] !== 0;
+        const hasSecondDiagonal = field[0][2] === field[1][1] && field[1][1] === field[2][0] && field[0][2] !== 0;
+
+        if (hasFirstDiagonal || hasSecondDiagonal) {
+            setWin(field[1][1]);
+        }
+    }
+
+    function setDraw() {
+        document.querySelector('.result').innerText = `draw`;
+    }
+
+    function setWin(winner) {
+        hasWinner = true;
+        document.querySelector('.result').classList.add(winner === 1 ? "x" : "o");
+        document.querySelector('.result').innerText = `wins`;
+    }
+</script>
