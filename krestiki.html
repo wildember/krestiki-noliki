@@ -98,16 +98,134 @@
     }
 
     function autoMove() {
-        // @TODO: prevent player1 from getting 3 in a row
-        // @TODO: search for the best move
         let selectedX = Math.floor(Math.random() * 3);
         let selectedY = Math.floor(Math.random() * 3);
+
+        const bestCoordinates = getWinningCoordinatesForPlayer(2)
+            ?? getWinningCoordinatesForPlayer(1);
+
+        if (bestCoordinates) {
+            selectedX = bestCoordinates.x;
+            selectedY = bestCoordinates.y;
+        }
 
         if (field[selectedX][selectedY] === 0) {
             move(selectedX, selectedY);
         } else {
             autoMove();
         }
+    }
+
+    function getWinningCoordinatesForPlayer(playerNumber = 1)
+    {
+        return getMoveToPreventFromRow(playerNumber)
+            ?? getMoveToPreventFromColumn(playerNumber)
+            ?? getMoveToPreventFromDiagonal(playerNumber);
+    }
+
+    function getMoveToPreventFromRow(playerNumber) {
+        if (almostHasRow(0, playerNumber)) {
+            return getLastEmptyRowCell(0);
+        }
+        if (almostHasRow(1, playerNumber)) {
+            return getLastEmptyRowCell(1);
+        }
+        if (almostHasRow(2, playerNumber)) {
+            return getLastEmptyRowCell(2);
+        }
+        return null;
+    }
+
+    function getMoveToPreventFromDiagonal(playerNumber) {
+        if (almostHasDiagonal(playerNumber)) {
+            return getLastEmptyDiagonalCell();
+        }
+        return null;
+    }
+
+    function getMoveToPreventFromColumn(playerNumber) {
+        if (almostHasColumn(0, playerNumber)) {
+            return getLastEmptyColumnCell(0);
+        }
+        if (almostHasColumn(1, playerNumber)) {
+            return getLastEmptyColumnCell(1);
+        }
+        if (almostHasColumn(2, playerNumber)) {
+            return getLastEmptyColumnCell(2);
+        }
+        return null;
+    }
+
+    function getLastEmptyRowCell(rowIndex) {
+        if (field[rowIndex][0] === 0) {
+            return {x: rowIndex, y: 0};
+        }
+        if (field[rowIndex][1] === 0) {
+            return {x: rowIndex, y: 1};
+        }
+        if (field[rowIndex][2] === 0) {
+            return {x: rowIndex, y: 2};
+        }
+
+        return null;
+    }
+
+    function getLastEmptyColumnCell(columnIndex) {
+        if (field[0][columnIndex] === 0) {
+            return {x: 0, y: columnIndex};
+        }
+        if (field[1][columnIndex] === 0) {
+            return {x: 1, y: columnIndex};
+        }
+        if (field[2][columnIndex] === 0) {
+            return {x: 2, y: columnIndex};
+        }
+
+        return null;
+    }
+
+    function getLastEmptyDiagonalCell() {
+        if (field[0][0] === 0) {
+            return {x: 0, y: 0};
+        }
+        if (field[1][1] === 0) {
+            return {x: 1, y: 1};
+        }
+        if (field[2][2] === 0) {
+            return {x: 2, y: 2};
+        }
+        if (field[0][2] === 0) {
+            return {x: 0, y: 2};
+        }
+        if (field[1][1] === 0) {
+            return {x: 1, y: 1};
+        }
+        if (field[2][0] === 0) {
+            return {x: 2, y: 0};
+        }
+
+        return null;
+    }
+
+    function almostHasRow(rowIndex, playerNumber) {
+        return field[rowIndex][0] === field[rowIndex][1] && field[rowIndex][0] === playerNumber
+            || field[rowIndex][1] === field[rowIndex][2] && field[rowIndex][1] === playerNumber
+            || field[rowIndex][0] === field[rowIndex][2] && field[rowIndex][0] === playerNumber;
+    }
+
+    function almostHasColumn(columnIndex, playerNumber) {
+        return field[0][columnIndex] === field[1][columnIndex] && field[0][columnIndex] === playerNumber
+            || field[1][columnIndex] === field[2][columnIndex] && field[1][columnIndex] === playerNumber
+            || field[0][columnIndex] === field[2][columnIndex] && field[0][columnIndex] === playerNumber;
+    }
+
+    function almostHasDiagonal(playerNumber) {
+        return field[0][0] === field[1][1] && field[0][0] === playerNumber
+            || field[1][1] === field[2][2] && field[1][1] === playerNumber
+            || field[0][0] === field[2][2] && field[0][0] === playerNumber
+            || field[0][2] === field[1][1] && field[0][2] === playerNumber
+            || field[1][1] === field[2][0] && field[1][1] === playerNumber
+            || field[0][2] === field[2][0] && field[0][2] === playerNumber;
     }
 
     function reset() {
