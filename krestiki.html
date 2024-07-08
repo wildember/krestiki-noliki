@@ -84,6 +84,8 @@
         }
 
         field[x][y] = player;
+        render();
+
         if (player === 1) {
             player = 2;
 
@@ -93,8 +95,6 @@
         } else {
             player = 1;
         }
-
-        render();
     }
 
     function autoMove() {
