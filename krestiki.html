@@ -5,6 +5,18 @@
     <title>krestiki-noliki</title>
 
     <style>
+        body {
+            background: rgba(0, 0, 0, 0.9);
+            color: goldenrod;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            align-items: center;
+            padding-top: 20vh;
+            gap: 10px;
+        }
         .row {
             display: flex;
             flex-direction: row;
@@ -12,10 +24,58 @@
         .cell {
             width: 40px;
             height: 40px;
-            border: 1px solid black;
+            border: 1px solid goldenrod;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        button {
+            padding: 5px 10px;
+            background: black;
+            color: goldenrod;
+            border: 1px solid goldenrod;
+            border-radius: 5px;
+            width: fit-content;
+            cursor: pointer;
+        }
+        label {
+            margin-left: 2px;
+        }
+        .mode, .result {
+            display: flex;
+            height: 20px;
+        }
+        input[type='radio']:after {
+            width: 15px;
+            height: 15px;
+            border-radius: 15px;
+            top: -2px;
+            left: -1px;
+            position: relative;
+            background-color: black;
+            content: '';
+            display: inline-block;
+            visibility: visible;
+            border: 1px solid black;
+        }
+        input[type='radio']:checked:after {
+            width: 15px;
+            height: 15px;
+            border-radius: 15px;
+            top: -2px;
+            left: -1px;
+            position: relative;
+            background-color: goldenrod;
+            content: '';
+            display: inline-block;
+            visibility: visible;
+            border: 1px solid black;
         }
         .x::before {
             content: "❌";
@@ -49,7 +109,7 @@
 
         <div class="actions">
             <div class="mode">
-                <label>mode</label>
+                <label>MODE:</label>
                 <input type="radio" name="mode" value="pvp" checked onclick="setMode('pvp')"><label for="pvp">PvP</label>
                 <input type="radio" name="mode" value="pve" onclick="setMode('pve')"><label for="pve">PvE</label>
             </div>
@@ -307,6 +367,6 @@
     function setWin(winner) {
         hasWinner = true;
         document.querySelector('.result').classList.add(winner === 1 ? "x" : "o");
-        document.querySelector('.result').innerText = `wins`;
+        document.querySelector('.result').innerText = ` WINS`;
     }
 </script>
